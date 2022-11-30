@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.dao.LessonSubscribeDao">
+
+    <sql id="columns">
+        id, lesson_id, user_id, subscribe_status, create_time, create_user_id,
+        update_time, update_user_id
+    </sql>
+
+    <sql id="qoCondition">
+    <where>
+        <if test="lessonIdList != null and lessonIdList.size > 0">
+            and lesson_id in
+            <foreach collection="lessonIdList" index="index" item="lessonId" open="(" separator="," close=")">
+                #{lessonId}
+            </foreach>
+        </if>
+        <if test="lessonId != null">
+            and lesson_id = #{lessonId}
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="subscribeStatus != null">
+            and subscribe_status = #{subscribeStatus}
+        </if>
+    </where>
+
+    </sql>
+    <insert id="insert" parameterType="com.example.demo.entity.LessonSubscribe" useGeneratedKeys="true" keyProperty="id">
+        insert into lesson_subscribe
+                (lesson_id, user_id, subscribe_status, create_user_id, update_user_id)
+            values
+                (#{lessonId}, #{userId}, #{subscribeStatus}, #{createUserId}, #{updateUserId})
+    </insert>
+
+    <update id="update" parameterType="com.example.demo.entity.Lesson">
+        update lesson_subscribe
+        <set>
+            <if test="subscribeStatus != null">
+                subscribe_status = #{subscribeStatus},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="listByQo" resultType="com.example.demo.entity.LessonSubscribe">
+        select
+        <include refid="columns"/>
+        from lesson_subscribe
+        <include refid="qoCondition"/>
+    </select>
+
+    <select id="getById" resultType="com.example.demo.entity.LessonSubscribe">
+        select
+        <include refid="columns"/>
+        from lesson_subscribe
+        where id = #{id}
+    </select>
+
+    <select id="listPage" resultType="com.example.demo.vo.PageData">
+        select
+        <include refid="columns"/>
+        from lesson_subscribe
+        <include refid="qoCondition"/>
+    </select>
+</mapper>
