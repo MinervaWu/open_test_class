@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.qo.LessonQo;
 import com.example.demo.qo.LessonSubscribeQo;
 import com.example.demo.vo.LessonSubscribeVo;
 import com.example.demo.vo.Result;
@@ -15,4 +16,6 @@ public interface LessonSubscribeService {
     Result<?> subscribe(LessonSubscribeVo lessonSubscribeVo);
 
     Result<?> cancelSubscribe(LessonSubscribeVo lessonSubscribeVo);
+
+    Result<?> listLesson(LessonQo lessonQo);
 }

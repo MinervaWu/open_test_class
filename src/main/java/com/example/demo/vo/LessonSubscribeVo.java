@@ -12,7 +12,7 @@ import lombok.Data;
  */
 @Data
 public class LessonSubscribeVo {
-    private User user;
+    private Integer userId;
     private LessonSubscribe lessonSubscribe;
     private Lesson lesson;
 

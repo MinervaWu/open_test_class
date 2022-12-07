@@ -1,0 +1,6 @@
+@charset "UTF-8";
+.lst {border:1px solid #CCC;border-collapse:collapse; width:100%}
+.lst th {font-width:bold;line-height:2rem;border:1px solid #CCC}
+.lst td {text-align:center;border:1px solid #CCC}
+
+.pag {text-align:center}

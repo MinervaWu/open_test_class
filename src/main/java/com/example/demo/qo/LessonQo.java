@@ -17,4 +17,5 @@ public class LessonQo extends BasePageQo{
     private String lessonName;
     private String teacherName;
     private LessonStatusEnum lessonStatus;
+    private Integer userId;
 }

@@ -14,7 +14,9 @@ public interface UserService {
 
     Result<?> add(User user);
 
-    Result<?> delete(User user);
+    Result<?> delete(Integer id);
 
     Result<?> update(User user);
+
+    Result<User> getById(Integer id);
 }

@@ -13,9 +13,11 @@ import com.example.demo.qo.LessonSubscribeQo;
 import com.example.demo.service.LessonService;
 import com.example.demo.util.NumberUtils;
 import com.example.demo.vo.LessonVo;
-import com.example.demo.vo.PageData;
 import com.example.demo.vo.Result;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -42,19 +44,21 @@ public class LessonServiceImpl implements LessonService {
     public Result<?> list(LessonQo lessonQo) {
         log.info("lessonQo | {}", lessonQo);
 
-        PageData<Lesson> pageData = lessonDao.listPage(lessonQo);
+        PageHelper.startPage(lessonQo.getPageNum(), lessonQo.getPageSize());
+        List<Lesson> lessonList = lessonDao.listByQo(lessonQo);
+
+        PageInfo<Lesson> pageData = new PageInfo<Lesson>(lessonList, lessonQo.getPageSize());
         if (Objects.isNull(pageData) || CollectionUtils.isEmpty(pageData.getList())) {
-            log.info("userList is empty");
-            return Result.success(new PageData<>());
+            log.info("lessonList is empty");
+            return Result.success(new PageInfo<LessonVo>());
         }
 
-        List<Lesson> lessonList = pageData.getList();
         log.info("lessonList | {}", lessonList.size());
 
-        Map<Integer, Long> lessonSubscribeNumMap = getLessonSubscribeNumMap(lessonList);
+        Map<Integer, Long> lessonSubscribeNumMap = getLessonSubscribeNumMap(pageData.getList());
 
         List<LessonVo> lessonVoList = new ArrayList<>(lessonList.size());
-        for (Lesson lesson : lessonList) {
+        for (Lesson lesson : pageData.getList()) {
             Long subscribeNum = lessonSubscribeNumMap.get(lesson.getId());
 
             LessonVo lessonVo = new LessonVo();
@@ -64,9 +68,10 @@ public class LessonServiceImpl implements LessonService {
             lessonVoList.add(lessonVo);
         }
 
-        PageData<LessonVo> lessonVoPageData = new PageData<>();
-        lessonVoPageData.setTotal(pageData.getTotal());
+        PageInfo<LessonVo> lessonVoPageData = new PageInfo<>();
+        BeanUtils.copyProperties(pageData, lessonVoPageData);
         lessonVoPageData.setList(lessonVoList);
+
         return Result.success(lessonVoPageData);
     }
 
@@ -97,8 +102,8 @@ public class LessonServiceImpl implements LessonService {
             return Result.fail(ResultCode.ARG_ERROR, ResultMessage.DATA_EXIST_ERROR);
         }
 
-        lesson.setCreateUserId(lessonVo.getUser().getId());
-        lesson.setUpdateUserId(lessonVo.getUser().getId());
+        lesson.setCreateUserId(lessonVo.getUserId());
+        lesson.setUpdateUserId(lessonVo.getUserId());
         Integer count = lessonDao.insert(lesson);
         log.info("count | {}", count);
         if (NumberUtils.isNotPositive(count)) {
@@ -124,7 +129,7 @@ public class LessonServiceImpl implements LessonService {
         }
 
         oldLesson.setLessonStatus(LessonStatusEnum.OFFLINE);
-        oldLesson.setUpdateUserId(lessonVo.getUser().getId());
+        oldLesson.setUpdateUserId(lessonVo.getUserId());
         lessonDao.update(oldLesson);
         log.info("oldLesson | {}", oldLesson);
         return Result.successWithoutData();
@@ -134,9 +139,9 @@ public class LessonServiceImpl implements LessonService {
         LessonQo lessonQo = new LessonQo();
         lessonQo.setLessonName(lessonName);
         lessonQo.setTeacherName(teacherName);
-
-        PageData<Lesson> pageData = lessonDao.listPage(lessonQo);
-        if (Objects.isNull(pageData) || CollectionUtils.isEmpty(pageData.getList())) {
+        lessonQo.setLessonStatus(LessonStatusEnum.ONLINE);
+        List<Lesson> lessonList = lessonDao.listByQo(lessonQo);
+        if (CollectionUtils.isEmpty(lessonList)) {
             return true;
         }
         return false;
@@ -157,13 +162,22 @@ public class LessonServiceImpl implements LessonService {
         }
 
         if (checkAndUpdateOldLesson(lesson, oldLesson)) {
-            oldLesson.setUpdateUserId(lessonVo.getUser().getId());
+            oldLesson.setUpdateUserId(lessonVo.getUserId());
             Integer updateCount = lessonDao.update(oldLesson);
             if (NumberUtils.isNotPositive(updateCount)) {
                 return Result.fail(ResultCode.RUN_ERROR, ResultMessage.DATA_BASE_RUN_ERROR);
             }
         }
         return Result.success(oldLesson);
+    }
+
+    @Override
+    public Result<Lesson> getById(Integer id) {
+        if (NumberUtils.isNotPositive(id)) {
+            return Result.fail(ResultCode.ARG_ERROR, ResultMessage.ARG_ERROR);
+        }
+        Lesson lesson = lessonDao.getById(id);
+        return Result.success(lesson);
     }
 
     private boolean checkAndUpdateOldLesson(Lesson lesson, Lesson oldLesson) {

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+    <!-- 引入 Bootstrap -->
+    <!--
+        <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+    -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+
+</head>
+
+<style>
+    h1{
+        /*文字对齐*/
+        text-align: center;
+    }
+</style>
+
+<body>
+
+<div class="container">
+    <div style="display: flex;justify-content: space-between;width: 100%;align-items: center">
+        <h3>用户管理</h3>
+        <form action="/logout" method="post" style="float:right">
+            <table>
+                <tr>
+                    <td colspan="2">
+                        <button type="submit">退出登录</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <button class="btn btn-success pull-right"><a th:href="@{'/user/addPage'}">添加用户</a></button>
+    <!--table-striped:斑马线格式，table-bordered：带边框的表格，table-hover：鼠标悬停高亮的表格-->
+
+    <table class="table table-striped table-bordered table-hover text-center">
+        <thead>
+        <tr style="text-align:center">
+            <!--        th标签定义html表格中的表头单元格-->
+            <th style="text-align:center">id</th>
+            <th style="text-align:center">姓名</th>
+            <th style="text-align:center">账号</th>
+            <th style="text-align:center">密码</th>
+            <th style="text-align:center">角色</th>
+            <th style="text-align:center">操作</th>
+        </tr>
+        </thead>
+
+        <tr th:each="user:${page.list}">
+            <!--        td标签定义html表格中的标准单元格-->
+            <td style="vertical-align: middle!important;" th:text="${user.id}"></td>
+            <td style="vertical-align: middle!important;" th:text="${user.userName}"></td>
+            <td style="vertical-align: middle!important;" th:text="${user.account}"></td>
+            <td style="vertical-align: middle!important;" th:text="${user.password}"></td>
+            <td style="vertical-align: middle!important;" th:text="${user.role.getName()}"></td>
+            <td>
+                <!--         a标签用来定义超链接 href表示超链接-->
+                <a class="btn btn-primary" th:href="@{'/user/updatePage/'+${user.id}}">更改</a>
+                <a class="btn btn-danger" th:href="@{'/user/delete/'+${user.id}}">删除</a>
+            </td>
+        </tr>
+    </table>
+
+    <div class="page">
+        共[[${page.total}]]条/共[[${page.pages}]]页/第[[${page.pageNum}]]页/每页[[${page.pageSize}]]条
+        <a href="/user/list?pageNum=1" th:if="${not page.isFirstPage}">首页</a>
+        <a th:href="'/user/list?pageNum='+${page.prePage}" th:if="${not page.isFirstPage}">上一页</a>
+        <a th:href="'/user/list?pageNum='+${page.nextPage}" th:if="${not page.isLastPage}">下一页</a>
+        <a th:href="'/user/list?pageNum='+${page.pages}" th:if="${not page.isLastPage}">尾页</a>
+    </div>
+</div>
+
+</body>
+
+</html>

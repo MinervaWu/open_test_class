@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>新增用户</title>
+  <!--<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">-->
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+
+<div style="width:400px;height:100%;margin-left:450px;margin-top:100px;">
+  <form action="/user/add" method="post">
+    <input name="_method" type="hidden" value="put">
+    姓 名：<input class="form-control" type="text" name="userName"><br>
+    账 号：<input class="form-control" type="text" name="account"><br>
+    密 码：<input class="form-control" type="text" name="password"><br>
+    角 色：
+    <select id="role" style="width:100px" name="role">
+      <option value="TEACHER">Teacher</option>
+      <option value="STUDENT">Student</option>
+      <option value="ADMIN">Admin</option>
+    </select> <br>
+    <button class="btn btn-primary btn-lg btn-block" type="submit">保存</button>
+  </form>
+</div>
+
+</body>
+</html>
+
+

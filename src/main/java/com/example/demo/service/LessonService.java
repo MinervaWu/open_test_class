@@ -18,4 +18,6 @@ public interface LessonService {
     Result<?> delete(LessonVo lessonVo);
 
     Result<?> update(LessonVo lessonVo);
+
+    Result<Lesson> getById(Integer id);
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<!--导入thymeleaf的名称空间-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="column" sec:authorize="hasAnyAuthority('ROLE_admin')">
+    <div class="ui raised segment">
+        <div class="ui">
+            <div class="content">
+                <a href="/user/list">用户管理</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="column" sec:authorize="hasAnyAuthority('ROLE_teacher')">
+    <div class="ui raised segment">
+        <div class="ui">
+            <div class="content">
+                <a href="/lesson/list" class="content">课程管理</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="column" sec:authorize="hasAnyAuthority('ROLE_student')">
+    <div class="ui raised segment">
+        <div class="ui">
+            <div class="content">
+                <a href="/lessonSubscribe/lesson/list" class="content">课程列表</a>
+                <a href="/lessonSubscribe/list" class="content">已课程订阅</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form action="/logout" method="post" style="float:right">
+    <table>
+        <tr>
+            <td colspan="2">
+                <button type="submit">退出登录</button>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

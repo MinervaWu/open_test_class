@@ -1,6 +1,7 @@
 package com.example.demo.enumeration;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.example.demo.util.NumberUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,10 +12,10 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum LessonStatusEnum {
-    OFFLINE(0, "offline"),
-    ONLINE(1, "online");
-
+public enum RoleEnum {
+    ROLE_ADMIN(0, "ROLE_admin"),
+    ROLE_STUDENT(1, "ROLE_student"),
+    ROLE_TEACHER(2, "ROLE_teacher");
     @EnumValue
     private Integer id;
     private String name;

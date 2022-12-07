@@ -3,7 +3,7 @@
 <mapper namespace="com.example.demo.dao.UserDao">
 
     <sql id="columns">
-        id, user_name, account, password, user_type, user_status, create_time, update_time
+        id, user_name, account, password, role, user_status, create_time, update_time
     </sql>
 
     <sql id="userQoCondition">
@@ -11,11 +11,14 @@
         <if test="account != null and account !=''">
             and account = #{account}
         </if>
+        <if test="password != null and password !=''">
+            and password = #{password}
+        </if>
         <if test="userName != null and userName !=''">
             and user_name = #{userName}
         </if>
-        <if test="userType != null">
-            and user_type = #{userType}
+        <if test="role != null">
+            and role = #{role}
         </if>
         <if test="userStatus != null">
             and user_status = #{userStatus}
@@ -25,9 +28,9 @@
     </sql>
     <insert id="insert" parameterType="com.example.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
         insert into user
-                (user_name, account, password, user_type, user_status)
+                (user_name, account, password, role, user_status)
             values
-                (#{userName}, #{account}, #{password}, #{userType}, #{userStatus})
+                (#{userName}, #{account}, #{password}, #{role}, #{userStatus})
     </insert>
 
     <update id="update" parameterType="com.example.demo.entity.User">
@@ -39,8 +42,8 @@
             <if test="password != null and password !=''">
                 password = #{password},
             </if>
-            <if test="userType != null">
-                user_type = #{userType},
+            <if test="role != null">
+                role = #{role},
             </if>
             <if test="userStatus != null">
                 user_status = #{userStatus},
@@ -49,7 +52,7 @@
         where id = #{id}
     </update>
 
-    <select id="listPage" resultType="com.example.demo.entity.User">
+    <select id="listByQo" resultType="com.example.demo.entity.User">
         select
         <include refid="columns"/>
         from user
@@ -63,4 +66,10 @@
         where id = #{id}
     </select>
 
+    <select id="getByQo" resultType="com.example.demo.entity.User">
+        select
+        <include refid="columns"/>
+        from user
+        <include refid="userQoCondition"/>
+    </select>
 </mapper>

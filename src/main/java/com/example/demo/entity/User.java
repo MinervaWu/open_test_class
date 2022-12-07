@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.enumeration.UserStatusEnum;
-import com.example.demo.enumeration.UserTypeEnum;
+import com.example.demo.enumeration.RoleEnum;
 import lombok.Data;
 
 import java.util.Date;
@@ -17,7 +17,7 @@ public class User {
     private String userName;
     private String account;
     private String password;
-    private UserTypeEnum userType;
+    private RoleEnum role;
     private UserStatusEnum userStatus;
     private Date createTime;
     private Date updateTime;

@@ -1,10 +1,7 @@
 package com.example.demo.dao;
 
 import com.example.demo.entity.User;
-import com.example.demo.mybatis.pagehelper.annotation.SeedPage;
 import com.example.demo.qo.UserQo;
-import com.example.demo.vo.PageData;
-import com.example.demo.vo.Result;
 
 import java.util.List;
 
@@ -18,8 +15,9 @@ public interface UserDao {
 
     Integer insert(User user);
 
-    @SeedPage
-    PageData<User> listPage(UserQo userQo);
+    List<User> listByQo(UserQo userQo);
 
     User getById(Integer id);
+
+    User getByQo(UserQo userQo);
 }

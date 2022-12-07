@@ -1,6 +1,7 @@
 package com.example.demo.vo;
 
 import com.example.demo.entity.Lesson;
+import com.example.demo.entity.LessonSubscribe;
 import com.example.demo.entity.User;
 import lombok.Data;
 
@@ -13,5 +14,7 @@ import lombok.Data;
 public class LessonVo {
     private Lesson lesson;
     private Integer subscribeNum;
-    private User user;
+    private Integer userId;
+    private boolean isSubscribe;
+    private LessonSubscribe lessonSubscribe;
 }

@@ -4,4 +4,17 @@ spring:
     driver-class-name: org.h2.Driver
     username: root
     password: 123456
+    schema: classpath:db/ddl.sql # 表结构脚本
+    data: classpath:db/dml.sql # 表数据脚本
+  h2:
+    console:
+      enabled: true # 访问h2数据库控制台
 
+mybatis-plus:
+  typeEnumsPackage: com.example.demo.enumeration
+
+pagehelper:
+  helperDialect: h2
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql

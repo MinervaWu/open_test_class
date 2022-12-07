@@ -10,10 +10,10 @@
     <sql id="qoCondition">
     <where>
         <if test="lessonName != null and lessonName !=''">
-            and lesson_name = #{lessonName}
+            and lesson_name like concat('%', #{lessonName}, '%')
         </if>
         <if test="teacherName != null and teacherName !=''">
-            and teacher_name = #{teacherName}
+            and teacher_name like concat('%', #{teacherName}, '%')
         </if>
         <if test="lessonStatus != null">
             and lesson_status = #{lessonStatus}
@@ -47,7 +47,7 @@
         where id = #{id}
     </update>
 
-    <select id="listPage" resultType="com.example.demo.entity.Lesson">
+    <select id="listByQo" resultType="com.example.demo.entity.Lesson">
         select
         <include refid="columns"/>
         from lesson

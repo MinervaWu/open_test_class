@@ -9,6 +9,7 @@ public class ResultMessage {
     private ResultMessage(){}
     public static final String ARG_ERROR = "参数错误";
 
+    public static final String LOGIN_ERROR = "用户名密码错误！";
     public static final String DATA_ERROR = "该数据不存在！";
     public static final String DATA_BASE_RUN_ERROR = "数据库操作异常，请稍后再试";
 

@@ -7,6 +7,8 @@ public class BasePageQo {
     //每页的数量
     private int pageSize;
 
+    public static int NORMAL_SISE = 10;
+
     public int getPageNum() {
         return this.pageNum == 0 ? 1 : this.pageNum;
     }

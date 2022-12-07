@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>修改用户</title>
+  <!--<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">-->
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+
+<div style="width:400px;height:100%;margin-left:450px;margin-top:100px;">
+  <form action="/user/update" method="post">
+    <input name="_method" type="hidden" value="put">
+    <input type="hidden" th:value="${user.id}" name="id">
+    姓 名：<input class="form-control"  type="text" th:value="${user.userName}" name="userName"><br>
+    账 号：<input class="form-control" type="text" th:value="${user.account}" name="account"><br>
+    密 码：<input class="form-control" type="text" th:value="${user.password}" name="password"><br>
+    角 色：
+    <select required id="role" style="width:100px" name="role">
+      <option value="" selected disabled hidden>请选择</option>
+      <option value="ADMIN">Admin</option>
+      <option value="TEACHER">Teacher</option>
+      <option value="STUDENT">Student</option>
+    </select> <br>
+    <button class="btn btn-primary btn-lg btn-block" type="submit">保存</button>
+  </form>
+</div>
+
+</body>
+</html>
+
+

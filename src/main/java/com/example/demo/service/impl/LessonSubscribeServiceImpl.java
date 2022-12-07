@@ -6,8 +6,6 @@ import com.example.demo.dao.LessonDao;
 import com.example.demo.dao.LessonSubscribeDao;
 import com.example.demo.entity.Lesson;
 import com.example.demo.entity.LessonSubscribe;
-import com.example.demo.entity.User;
-import com.example.demo.enumeration.LessonStatusEnum;
 import com.example.demo.enumeration.SubscribeStatusEnum;
 import com.example.demo.qo.LessonQo;
 import com.example.demo.qo.LessonSubscribeQo;
@@ -15,9 +13,11 @@ import com.example.demo.service.LessonSubscribeService;
 import com.example.demo.util.NumberUtils;
 import com.example.demo.vo.LessonSubscribeVo;
 import com.example.demo.vo.LessonVo;
-import com.example.demo.vo.PageData;
 import com.example.demo.vo.Result;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -43,31 +43,34 @@ public class LessonSubscribeServiceImpl implements LessonSubscribeService {
 
     @Override
     public Result<?> list(LessonSubscribeQo lessonSubscribeQo) {
-        PageData<LessonSubscribe> pageData = lessonSubscribeDao.listPage(lessonSubscribeQo);
+        log.info("lessonSubscribeQo | {}", lessonSubscribeQo);
+        PageHelper.startPage(lessonSubscribeQo.getPageNum(), lessonSubscribeQo.getPageSize());
+
+        List<LessonSubscribe> subscribeList = lessonSubscribeDao.listByQo(lessonSubscribeQo);
+        PageInfo<LessonSubscribe> pageData = new PageInfo<LessonSubscribe>(subscribeList, lessonSubscribeQo.getPageSize());
 
         if (Objects.isNull(pageData) || CollectionUtils.isEmpty(pageData.getList())) {
-            log.info("userList is empty");
-            return Result.success(new PageData<>());
+            log.info("lessonSubscribeList is empty");
+            return Result.success(new PageInfo<LessonSubscribe>());
         }
 
-        List<LessonSubscribe> subscribeList = pageData.getList();
         log.info("subscribeList | {}", subscribeList.size());
 
         Map<Integer, Lesson> lessonVoMap = getLessonVoMap(subscribeList);
 
-        List<LessonSubscribeVo> subscribeVoList = new ArrayList<>(subscribeList.size());
+        List<LessonVo> lessonVoList = new ArrayList<>(subscribeList.size());
         for (LessonSubscribe subscribe : subscribeList) {
             Lesson lesson = lessonVoMap.get(subscribe.getLessonId());
 
-            LessonSubscribeVo lessonSubscribeVo = new LessonSubscribeVo();
-            lessonSubscribeVo.setLessonSubscribe(subscribe);
-            lessonSubscribeVo.setLesson(lesson);
-            subscribeVoList.add(lessonSubscribeVo);
+            LessonVo lessonVo = new LessonVo();
+            lessonVo.setLessonSubscribe(subscribe);
+            lessonVo.setLesson(lesson);
+            lessonVoList.add(lessonVo);
         }
 
-        PageData<LessonSubscribeVo> lessonVoPageData = new PageData<>();
-        lessonVoPageData.setTotal(pageData.getTotal());
-        lessonVoPageData.setList(subscribeVoList);
+        PageInfo<LessonVo> lessonVoPageData = new PageInfo<>();
+        BeanUtils.copyProperties(pageData, lessonVoPageData);
+        lessonVoPageData.setList(lessonVoList);
         return Result.success(lessonVoPageData);
     }
 
@@ -77,23 +80,23 @@ public class LessonSubscribeServiceImpl implements LessonSubscribeService {
         LessonQo lessonQo = new LessonQo();
         lessonQo.setLessonIdList(lessonIdList);
 
-        PageData<Lesson> lessonPageData = lessonDao.listPage(lessonQo);
-        if (Objects.isNull(lessonPageData) || CollectionUtils.isEmpty(lessonPageData.getList())) {
+        log.info("lessonQo | {}", lessonQo);
+        List<Lesson> lessonList = lessonDao.listByQo(lessonQo);
+        log.info("lessonList | {}", lessonList);
+        if (CollectionUtils.isEmpty(lessonList)) {
             return Collections.EMPTY_MAP;
         }
-        List<Lesson> lessonList = lessonPageData.getList();
-        return lessonList.stream().collect(Collectors.toMap(Lesson::getId, Function.identity()));
 
+        return lessonList.stream().collect(Collectors.toMap(Lesson::getId, Function.identity()));
     }
 
     @Override
     public Result<?> subscribe(LessonSubscribeVo lessonSubscribeVo) {
-        User user = lessonSubscribeVo.getUser();
 
         LessonSubscribe lessonSubscribe = lessonSubscribeVo.getLessonSubscribe();
-        lessonSubscribe.setUserId(user.getId());
-        lessonSubscribe.setCreateUserId(user.getId());
-        lessonSubscribe.setUpdateUserId(user.getId());
+        lessonSubscribe.setUserId(lessonSubscribeVo.getUserId());
+        lessonSubscribe.setCreateUserId(lessonSubscribeVo.getUserId());
+        lessonSubscribe.setUpdateUserId(lessonSubscribeVo.getUserId());
         lessonSubscribe.setSubscribeStatus(SubscribeStatusEnum.SUBSCRIBE);
 
         boolean unique = checkUnique(lessonSubscribe.getLessonId(), lessonSubscribe.getUserId());
@@ -124,8 +127,7 @@ public class LessonSubscribeServiceImpl implements LessonSubscribeService {
 
     @Override
     public Result<?> cancelSubscribe(LessonSubscribeVo lessonSubscribeVo) {
-        User user = lessonSubscribeVo.getUser();
-
+        log.info("lessonSubscribeVo | {}", lessonSubscribeVo);
         Integer subscribeId = lessonSubscribeVo.getLessonSubscribe().getId();
         if (NumberUtils.isNotPositive(subscribeId)) {
             return Result.fail(ResultCode.ARG_ERROR, ResultMessage.ARG_ERROR);
@@ -136,11 +138,66 @@ public class LessonSubscribeServiceImpl implements LessonSubscribeService {
         if (Objects.isNull(oldSubscribe)) {
             return Result.fail(ResultCode.ARG_ERROR, ResultMessage.DATA_ERROR);
         }
-        oldSubscribe.setSubscribeStatus(SubscribeStatusEnum.DIS_SUBSCRIBE);
-        oldSubscribe.setUpdateUserId(user.getId());
+        oldSubscribe.setSubscribeStatus(SubscribeStatusEnum.CANCEL_SUBSCRIBE);
+        oldSubscribe.setUpdateUserId(lessonSubscribeVo.getUserId());
 
         lessonSubscribeDao.update(oldSubscribe);
         log.info("oldSubscribe | {}", oldSubscribe);
         return Result.successWithoutData();
+    }
+
+    @Override
+    public Result<?> listLesson(LessonQo lessonQo) {
+        log.info("lessonQo | {}", lessonQo);
+
+        PageHelper.startPage(lessonQo.getPageNum(), lessonQo.getPageSize());
+        List<Lesson> lessonList = lessonDao.listByQo(lessonQo);
+
+        PageInfo<Lesson> pageData = new PageInfo<Lesson>(lessonList, lessonQo.getPageSize());
+        if (Objects.isNull(pageData) || CollectionUtils.isEmpty(pageData.getList())) {
+            log.info("lessonList is empty");
+            return Result.success(new PageInfo<LessonVo>());
+        }
+
+        log.info("lessonList | {}", pageData.getList().size());
+
+        Map<Integer, LessonSubscribe> lessonSubscribeMap = getLessonSubscribeMap(lessonQo, pageData.getList());
+
+        List<LessonVo> lessonVoList = new ArrayList<>(pageData.getList().size());
+        for (Lesson lesson : pageData.getList()) {
+            LessonVo lessonVo = new LessonVo();
+            lessonVo.setLesson(lesson);
+
+            if (lessonSubscribeMap.containsKey(lesson.getId())) {
+                lessonVo.setSubscribe(true);
+            } else {
+                lessonVo.setSubscribe(false);
+            }
+            lessonVoList.add(lessonVo);
+        }
+
+        PageInfo<LessonVo> lessonVoPageData = new PageInfo<>();
+        BeanUtils.copyProperties(pageData, lessonVoPageData);
+        lessonVoPageData.setList(lessonVoList);
+
+        return Result.success(lessonVoPageData);
+    }
+
+
+    private Map<Integer, LessonSubscribe> getLessonSubscribeMap(LessonQo lessonQo, List<Lesson> lessonList) {
+        List<Integer> lessonIdList = lessonList.stream().map(Lesson::getId).collect(Collectors.toList());
+
+        LessonSubscribeQo lessonSubscribeQo = new LessonSubscribeQo();
+        lessonSubscribeQo.setLessonIdList(lessonIdList);
+        lessonSubscribeQo.setUserId(lessonQo.getUserId());
+        lessonSubscribeQo.setSubscribeStatus(SubscribeStatusEnum.SUBSCRIBE);
+
+        List<LessonSubscribe> lessonSubscribeList = lessonSubscribeDao.listByQo(lessonSubscribeQo);
+        if (CollectionUtils.isEmpty(lessonSubscribeList)) {
+            return Collections.EMPTY_MAP;
+        }
+
+        Map<Integer, LessonSubscribe> lessonSubscribeMap = lessonSubscribeList.stream().collect(Collectors.toMap(LessonSubscribe::getLessonId, Function.identity()));
+        return lessonSubscribeMap;
     }
 }

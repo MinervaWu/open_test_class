@@ -8,8 +8,9 @@ import com.example.demo.enumeration.UserStatusEnum;
 import com.example.demo.qo.UserQo;
 import com.example.demo.service.UserService;
 import com.example.demo.util.NumberUtils;
-import com.example.demo.vo.PageData;
 import com.example.demo.vo.Result;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -35,10 +36,14 @@ public class UserServiceImpl implements UserService {
     public Result<?> list(UserQo userQo) {
         log.info("userQo | {}", userQo);
 
-        PageData<User> pageData = userDao.listPage(userQo);
+        PageHelper.startPage(userQo.getPageNum(), userQo.getPageSize());
+        List<User> userList = userDao.listByQo(userQo);
+
+        PageInfo<User> pageData = new PageInfo<User>(userList, userQo.getPageSize());
+
         if (Objects.isNull(pageData) || CollectionUtils.isEmpty(pageData.getList())) {
             log.info("userList is empty");
-            return Result.success(new PageData<>());
+            return Result.successWithoutData();
         }
         log.info("userList | {}", pageData.getList().size());
 
@@ -52,6 +57,7 @@ public class UserServiceImpl implements UserService {
         if (!unique) {
             return Result.fail(ResultCode.ARG_ERROR, ResultMessage.DATA_EXIST_ERROR);
         }
+
         Integer count = userDao.insert(user);
         log.info("count | {}", count);
         if (NumberUtils.isNotPositive(count)) {
@@ -64,18 +70,20 @@ public class UserServiceImpl implements UserService {
     private boolean checkUnique(String account) {
         UserQo userQo = new UserQo();
         userQo.setAccount(account);
-        PageData<User> pageData = userDao.listPage(userQo);
-        if (Objects.isNull(pageData) || CollectionUtils.isEmpty(pageData.getList())) {
+        userQo.setUserStatus(UserStatusEnum.VALID);
+        log.info("userQo | {}", userQo);
+
+        List<User> userList = userDao.listByQo(userQo);
+        if (CollectionUtils.isEmpty(userList)) {
             return true;
         }
         return false;
     }
 
     @Override
-    public Result<?> delete(User user) {
-        log.info("user | {}", user);
+    public Result<?> delete(Integer id) {
+        log.info("id | {}", id);
 
-        Integer id = user.getId();
         if (NumberUtils.isNotPositive(id)) {
             return Result.fail(ResultCode.ARG_ERROR, ResultMessage.ARG_ERROR);
         }
@@ -114,6 +122,17 @@ public class UserServiceImpl implements UserService {
         return Result.success(oldUser);
     }
 
+    @Override
+    public Result<User> getById(Integer id) {
+        log.info("id | {}", id);
+        if (NumberUtils.isNotPositive(id)) {
+            return Result.fail(ResultCode.ARG_ERROR, ResultMessage.ARG_ERROR);
+        }
+        User user = userDao.getById(id);
+        log.info("user | {}", user);
+        return Result.success(user);
+    }
+
     private boolean checkAndUpdateOldUser(User user, User oldUser) {
         log.info("user, oldUser | {}, {}", user, oldUser);
 
@@ -131,8 +150,8 @@ public class UserServiceImpl implements UserService {
             oldUser.setPassword(user.getPassword());
             change = true;
         }
-        if (!Objects.isNull(user.getUserType()) && !user.getUserType().equals(oldUser.getUserType())) {
-            oldUser.setUserType(user.getUserType());
+        if (!Objects.isNull(user.getRole()) && !user.getRole().equals(oldUser.getRole())) {
+            oldUser.setRole(user.getRole());
             change = true;
         }
         if (!Objects.isNull(user.getUserStatus()) && !user.getUserStatus().equals(oldUser.getUserStatus())) {
@@ -142,6 +161,4 @@ public class UserServiceImpl implements UserService {
         log.info("change | {}", change);
         return change;
     }
-
-
 }

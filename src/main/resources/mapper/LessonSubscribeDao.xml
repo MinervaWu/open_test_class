@@ -3,8 +3,7 @@
 <mapper namespace="com.example.demo.dao.LessonSubscribeDao">
 
     <sql id="columns">
-        id, lesson_id, user_id, subscribe_status, create_time, create_user_id,
-        update_time, update_user_id
+        id, lesson_id, user_id, subscribe_status, create_time, update_time
     </sql>
 
     <sql id="qoCondition">
@@ -29,9 +28,9 @@
     </sql>
     <insert id="insert" parameterType="com.example.demo.entity.LessonSubscribe" useGeneratedKeys="true" keyProperty="id">
         insert into lesson_subscribe
-                (lesson_id, user_id, subscribe_status, create_user_id, update_user_id)
+                (lesson_id, user_id, subscribe_status)
             values
-                (#{lessonId}, #{userId}, #{subscribeStatus}, #{createUserId}, #{updateUserId})
+                (#{lessonId}, #{userId}, #{subscribeStatus})
     </insert>
 
     <update id="update" parameterType="com.example.demo.entity.Lesson">
@@ -58,10 +57,4 @@
         where id = #{id}
     </select>
 
-    <select id="listPage" resultType="com.example.demo.vo.PageData">
-        select
-        <include refid="columns"/>
-        from lesson_subscribe
-        <include refid="qoCondition"/>
-    </select>
 </mapper>
