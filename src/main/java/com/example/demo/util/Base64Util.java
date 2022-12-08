@@ -30,12 +30,12 @@ public class Base64Util {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        String text = "teacher";
-        String encodeText = encode(text);
-        String decodeText = decode(encodeText);
-        System.out.println("encodeText : " + encodeText);
-        System.out.println("decodeText : " + decodeText);
-    }
+//    public static void main(String[] args) throws Exception {
+//        String text = "Admin";
+//        String encodeText = encode(text);
+//        String decodeText = decode(encodeText);
+//        System.out.println("encodeText : " + encodeText);
+//        System.out.println("decodeText : " + decodeText);
+//    }
 }
 

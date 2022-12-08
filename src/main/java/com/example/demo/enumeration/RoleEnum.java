@@ -13,9 +13,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum RoleEnum {
-    ROLE_ADMIN(0, "ROLE_admin"),
-    ROLE_STUDENT(1, "ROLE_student"),
-    ROLE_TEACHER(2, "ROLE_teacher");
+    ADMIN(0, "ROLE_admin"),
+    STUDENT(1, "ROLE_student"),
+    TEACHER(2, "ROLE_teacher");
     @EnumValue
     private Integer id;
     private String name;

@@ -1,7 +1,7 @@
 DELETE FROM user;
 
 INSERT INTO user (id, user_name, account, password, role, user_status)
-VALUES (1, 'admin', 'admin', 'YWRtaW4=', 0, 1),
+VALUES (1, 'Admin', 'Admin', 'QWRtaW4=', 0, 1),
        (2, 'teacher', 'teacher', 'dGVhY2hlcg==', 2, 1),
        (3, 'student', 'student', 'c3R1ZGVudA==', 1, 1);
 
